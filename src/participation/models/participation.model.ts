@@ -1,5 +1,6 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, NonAttribute } from 'sequelize';
 import { sequelize } from '../../common/config/database';
+import { UserModel } from '../../user/models/user.model';
 import { ParticipationStatus } from '../enums/participation-status.enum';
 import { ParticipantAnswerModel } from './participant-answer.model';
 
@@ -14,6 +15,7 @@ export class ParticipationModel extends Model<InferAttributes<ParticipationModel
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
   declare answers?: NonAttribute<ParticipantAnswerModel[]>;
+  declare user?: NonAttribute<UserModel>;
 }
 
 ParticipationModel.init(
@@ -30,3 +32,5 @@ ParticipationModel.init(
   },
   { sequelize, modelName: 'participation', tableName: 'participations', indexes: [{ unique: true, fields: ['contest_id', 'user_id'] }] },
 );
+
+ParticipationModel.belongsTo(UserModel, { foreignKey: 'userId', as: 'user' });
