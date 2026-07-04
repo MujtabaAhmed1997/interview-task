@@ -1,0 +1,4 @@
+export enum PrizeErrorCode {
+  PRIZE_NOT_FOUND = 'PRIZE_NOT_FOUND',
+  DUPLICATE_RANK = 'DUPLICATE_RANK',
+}
