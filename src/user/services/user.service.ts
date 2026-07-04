@@ -6,13 +6,7 @@ import { secrets } from '../../common/util/secrets';
 import { UserDAO } from '../daos/user.dao';
 import { UserDTO } from '../dtos/user.dto';
 import { UserErrorCode } from '../enums/user-error-code.enum';
-
-export interface CreateUserInput {
-  email: string;
-  name: string;
-  password: string;
-  role?: UserRole;
-}
+import { CreateUserInput } from '../requests/create-user.request';
 
 export class UserService extends ServiceCRUD<UserDTO, UserDAO> {
   constructor(dao: UserDAO = new UserDAO()) {
