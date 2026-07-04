@@ -13,6 +13,7 @@ import { ContestController } from './contest/controllers/contest.controller';
 import { HealthController } from './health/health.controller';
 import { LeaderboardController } from './leaderboard/controllers/leaderboard.controller';
 import { ParticipationController } from './participation/controllers/participation.controller';
+import { PrizeController } from './prize/controllers/prize.controller';
 import { QuestionController } from './question/controllers/question.controller';
 import { UserController } from './user/controllers/user.controller';
 
@@ -35,6 +36,7 @@ export const createApp = (): Application => {
   app.use(`${secrets.apiPrefix}`, new QuestionController().router);
   app.use(`${secrets.apiPrefix}`, new ParticipationController().router);
   app.use(`${secrets.apiPrefix}`, new LeaderboardController().router);
+  app.use(`${secrets.apiPrefix}`, new PrizeController().router);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

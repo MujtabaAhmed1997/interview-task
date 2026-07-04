@@ -1,11 +1,14 @@
 import { createApp } from './app';
 import { connectDatabase, disconnectDatabase } from './common/config/database';
+import { closeQueues } from './common/queues/queue.registry';
 import { logger } from './common/util/logger';
 import { disconnectRedis } from './common/util/redis';
 import { secrets } from './common/util/secrets';
+import { registerPrizeAwardWorker } from './prize/workers/prize-award.worker';
 
 const start = async (): Promise<void> => {
   await connectDatabase();
+  registerPrizeAwardWorker();
   const app = createApp();
   const server = app.listen(secrets.port, () => {
     logger.info({ event: 'server.started', port: secrets.port, env: secrets.env });
@@ -14,6 +17,7 @@ const start = async (): Promise<void> => {
   const shutdown = async (signal: string): Promise<void> => {
     logger.info({ event: 'server.shutdown', signal });
     server.close();
+    await closeQueues();
     await disconnectDatabase();
     await disconnectRedis();
     process.exit(0);
