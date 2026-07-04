@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { Environment } from '../enums/environment.enum';
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ const asNumber = (value: string, key: string): number => {
 };
 
 export const secrets = {
-  env: optional('NODE_ENV', 'development'),
+  env: optional('NODE_ENV', Environment.DEVELOPMENT),
   port: asNumber(optional('PORT', '3000'), 'PORT'),
   apiPrefix: optional('API_PREFIX', '/api/v1'),
   db: {
@@ -53,6 +54,10 @@ export const secrets = {
   rateLimitStore: optional('RATE_LIMIT_STORE', 'redis'),
 } as const;
 
-export const isProduction = (): boolean => secrets.env === 'production';
+export const isDevelopment = (): boolean => secrets.env === Environment.DEVELOPMENT;
 
-export const isTest = (): boolean => secrets.env === 'test';
+export const isStaging = (): boolean => secrets.env === Environment.STAGING;
+
+export const isProduction = (): boolean => secrets.env === Environment.PRODUCTION;
+
+export const isTest = (): boolean => secrets.env === Environment.TEST;

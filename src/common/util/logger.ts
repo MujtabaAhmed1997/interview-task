@@ -1,5 +1,5 @@
 import { createLogger, format, transports, Logger } from 'winston';
-import { isProduction, isTest } from './secrets';
+import { isDevelopment, isTest } from './secrets';
 
 const { combine, timestamp, json, colorize, printf, errors } = format;
 
@@ -10,10 +10,10 @@ const humanReadable = printf((info) => {
 });
 
 export const logger: Logger = createLogger({
-  level: isProduction() ? 'info' : 'debug',
-  format: isProduction()
-    ? combine(errors({ stack: true }), timestamp(), json())
-    : combine(errors({ stack: true }), timestamp({ format: 'HH:mm:ss' }), colorize(), humanReadable),
+  level: isDevelopment() ? 'debug' : 'info',
+  format: isDevelopment()
+    ? combine(errors({ stack: true }), timestamp({ format: 'HH:mm:ss' }), colorize(), humanReadable)
+    : combine(errors({ stack: true }), timestamp(), json()),
   transports: [new transports.Console()],
   silent: isTest(),
 });
