@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { UniqueConstraintError } from 'sequelize';
 import { UserRole } from '../../src/common/enums/user-role.enum';
 import { UserDAO } from '../../src/user/daos/user.dao';
 import { UserDTO } from '../../src/user/dtos/user.dto';
@@ -23,16 +24,15 @@ function buildDao(overrides: Partial<UserDAO> = {}): UserDAO {
     findById: jest.fn(),
     findByIdOrNull: jest.fn(),
     update: jest.fn(),
+    paginate: jest.fn(),
     ...overrides,
   } as unknown as UserDAO;
 }
 
 describe('UserService', () => {
   describe('createUser', () => {
-    it('rejects a duplicate email with EMAIL_ALREADY_EXISTS', async () => {
-      const dao = buildDao({
-        findCredentialsByEmail: jest.fn().mockResolvedValue({ id: 'x', email: 'user@test.local', name: 'X', role: UserRole.NORMAL, passwordHash: 'h' }),
-      });
+    it('maps a unique-constraint violation to 409 EMAIL_ALREADY_EXISTS', async () => {
+      const dao = buildDao({ create: jest.fn().mockRejectedValue(new UniqueConstraintError({ errors: [] })) });
       const service = new UserService(dao);
       await expect(service.createUser({ email: 'user@test.local', name: 'X', password: 'password123' })).rejects.toMatchObject({
         status: 409,
@@ -112,6 +112,22 @@ describe('UserService', () => {
 
       expect(result).toBe(updated);
       expect(update).toHaveBeenCalledWith('target-id', { role: UserRole.VIP });
+    });
+  });
+
+  describe('list', () => {
+    it('builds a search where clause when search is present', async () => {
+      const paginate = jest.fn().mockResolvedValue({ data: [], metadata: {} });
+      const service = new UserService(buildDao({ paginate }));
+      await service.list({ page: 1, perPage: 10, search: 'ali' });
+      expect(paginate.mock.calls[0][1]).toBeDefined();
+    });
+
+    it('passes no where clause when search is absent', async () => {
+      const paginate = jest.fn().mockResolvedValue({ data: [], metadata: {} });
+      const service = new UserService(buildDao({ paginate }));
+      await service.list({ page: 1, perPage: 10 });
+      expect(paginate.mock.calls[0][1]).toBeUndefined();
     });
   });
 });
