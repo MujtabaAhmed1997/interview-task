@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { RouterClass } from '../../common/base/router.class';
 import { HttpStatusCode } from '../../common/enums/http-status.enum';
+import { RateLimitPolicyName } from '../../common/enums/rate-limit-policy-name.enum';
 import { ApiError, apiOk } from '../../common/errors/api.error';
 import { authRequired } from '../../common/middlewares/auth.middleware';
+import { rateLimit } from '../../common/ratelimit/rate-limit.middleware';
 import { UserResponse } from '../../user/responses/user.response';
 import { loginValidator } from '../requests/login.request';
 import { signupValidator } from '../requests/signup.request';
@@ -19,7 +21,7 @@ export class AuthController extends RouterClass {
 
   protected register(): void {
     this.router.post('/signup', ...signupValidator, this.handle(this.signup.bind(this)));
-    this.router.post('/login', ...loginValidator, this.handle(this.login.bind(this)));
+    this.router.post('/login', rateLimit(RateLimitPolicyName.AUTH_LOGIN), ...loginValidator, this.handle(this.login.bind(this)));
     this.router.get('/me', authRequired, this.handle(this.me.bind(this)));
   }
 
