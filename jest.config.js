@@ -9,6 +9,7 @@ module.exports = {
   },
   setupFiles: ['<rootDir>/test/setup/env.ts'],
   globalSetup: '<rootDir>/test/setup/global-setup.js',
+  maxWorkers: 1,
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/server.ts'],
   coverageThreshold: {
     global: { branches: 70, functions: 80, lines: 80, statements: 80 },

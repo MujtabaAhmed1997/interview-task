@@ -9,6 +9,7 @@ import { errorHandler } from './common/middlewares/error-handler.middleware';
 import { notFoundHandler } from './common/middlewares/not-found.middleware';
 import { rateLimit } from './common/ratelimit/rate-limit.middleware';
 import { secrets } from './common/util/secrets';
+import { ContestController } from './contest/controllers/contest.controller';
 import { HealthController } from './health/health.controller';
 import { UserController } from './user/controllers/user.controller';
 
@@ -27,6 +28,7 @@ export const createApp = (): Application => {
 
   app.use(`${secrets.apiPrefix}/auth`, new AuthController().router);
   app.use(`${secrets.apiPrefix}/admin/users`, new UserController().router);
+  app.use(`${secrets.apiPrefix}/contests`, new ContestController().router);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
