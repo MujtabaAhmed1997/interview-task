@@ -7,7 +7,7 @@ const databaseName = isTest() ? `${secrets.db.name}_test` : secrets.db.name;
 export const sequelize = new Sequelize(databaseName, secrets.db.user, secrets.db.password, {
   host: secrets.db.host,
   port: secrets.db.port,
-  dialect: 'postgres',
+  dialect: 'mysql',
   logging: false,
   define: {
     underscored: true,
