@@ -3,8 +3,8 @@
 const { Op } = require('sequelize');
 
 const ADMIN_ID = '11111111-1111-1111-1111-111111111111';
-const NORMAL_CONTEST_ID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
-const VIP_CONTEST_ID = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+const NORMAL_CONTEST_ID = 'a0000000-0000-4000-8000-000000000001';
+const VIP_CONTEST_ID = 'a0000000-0000-4000-8000-000000000002';
 
 const daysFromNow = (days) => new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 

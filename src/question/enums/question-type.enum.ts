@@ -1,0 +1,5 @@
+export enum QuestionType {
+  SINGLE_SELECT = 'SINGLE_SELECT',
+  MULTI_SELECT = 'MULTI_SELECT',
+  TRUE_FALSE = 'TRUE_FALSE',
+}
