@@ -7,6 +7,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  setupFiles: ['<rootDir>/test/setup/env.ts'],
+  globalSetup: '<rootDir>/test/setup/global-setup.js',
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/server.ts'],
   coverageThreshold: {
     global: { branches: 70, functions: 80, lines: 80, statements: 80 },
