@@ -1,0 +1,15 @@
+{
+  "id": "contest-system-local",
+  "name": "Contest System (local)",
+  "values": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1", "enabled": true },
+    { "key": "adminEmail", "value": "admin@contest.local", "enabled": true },
+    { "key": "adminPassword", "value": "change_me_admin", "enabled": true },
+    { "key": "token", "value": "", "enabled": true },
+    { "key": "adminToken", "value": "", "enabled": true },
+    { "key": "contestId", "value": "", "enabled": true },
+    { "key": "questionId", "value": "", "enabled": true },
+    { "key": "optionId", "value": "", "enabled": true }
+  ],
+  "_postman_variable_scope": "environment"
+}

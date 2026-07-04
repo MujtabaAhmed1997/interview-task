@@ -2,11 +2,13 @@ import compression from 'compression';
 import cors from 'cors';
 import express, { Application } from 'express';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
 import './common/types/express';
 import { AuthController } from './auth/controllers/auth.controller';
 import { RateLimitPolicyName } from './common/enums/rate-limit-policy-name.enum';
 import { errorHandler } from './common/middlewares/error-handler.middleware';
 import { notFoundHandler } from './common/middlewares/not-found.middleware';
+import { openApiDocument } from './common/openapi/document';
 import { rateLimit } from './common/ratelimit/rate-limit.middleware';
 import { secrets } from './common/util/secrets';
 import { ContestController } from './contest/controllers/contest.controller';
@@ -29,6 +31,7 @@ export const createApp = (): Application => {
   app.use(express.urlencoded({ extended: true }));
 
   app.use(`${secrets.apiPrefix}/health`, new HealthController().router);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
   app.use(rateLimit(RateLimitPolicyName.GLOBAL));
 
