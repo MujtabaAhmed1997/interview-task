@@ -60,6 +60,12 @@ describe('auth flow', () => {
     const res = await request(app).get(`${prefix}/auth/me`);
     expect(res.status).toBe(401);
   });
+
+  it('ignores a role sent in the signup body (no privilege escalation)', async () => {
+    const res = await request(app).post(`${prefix}/auth/signup`).send({ email: 'sneaky@test.local', name: 'Sneaky', password: 'password123', role: UserRole.ADMIN });
+    expect(res.status).toBe(201);
+    expect(res.body.result.user.role).toBe(UserRole.NORMAL);
+  });
 });
 
 describe('admin user management', () => {
@@ -87,5 +93,20 @@ describe('admin user management', () => {
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.result.data)).toBe(true);
     expect(res.body.result.metadata.total).toBeGreaterThan(0);
+  });
+
+  it('forbids a normal user from listing users (403)', async () => {
+    const normal = await request(app).post(`${prefix}/auth/signup`).send({ email: 'nolist@test.local', name: 'No List', password: 'password123' });
+    const res = await request(app).get(`${prefix}/admin/users`).set('Authorization', `Bearer ${normal.body.result.token}`);
+    expect(res.status).toBe(403);
+  });
+
+  it('filters the user list by the search query', async () => {
+    await UserModel.create({ email: 'needle-unique@test.local', name: 'Findme', passwordHash: bcrypt.hashSync('password123', 4), role: UserRole.ADMIN });
+    const login = await request(app).post(`${prefix}/auth/login`).send({ email: 'needle-unique@test.local', password: 'password123' });
+    const res = await request(app).get(`${prefix}/admin/users?search=needle-unique`).set('Authorization', `Bearer ${login.body.result.token}`);
+    expect(res.status).toBe(200);
+    expect(res.body.result.metadata.total).toBe(1);
+    expect(res.body.result.data[0].email).toBe('needle-unique@test.local');
   });
 });
