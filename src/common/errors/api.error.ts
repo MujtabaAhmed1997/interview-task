@@ -17,48 +17,56 @@ export interface ApiEnvelope<T> {
   stack?: string;
 }
 
+interface ApiErrorParams {
+  status: HttpStatusCode;
+  code: ApiErrorCode;
+  subCode: string;
+  message: string;
+  errors?: ApiErrorDetail[];
+}
+
 export class ApiError extends Error {
   public readonly status: HttpStatusCode;
   public readonly code: ApiErrorCode;
   public readonly subCode: string;
   public readonly errors: ApiErrorDetail[];
 
-  constructor(status: HttpStatusCode, code: ApiErrorCode, subCode: string, message: string, errors?: ApiErrorDetail[]) {
-    super(message);
+  constructor(params: ApiErrorParams) {
+    super(params.message);
     this.name = 'ApiError';
-    this.status = status;
-    this.code = code;
-    this.subCode = subCode;
-    this.errors = errors ?? [{ code, subCode, message }];
+    this.status = params.status;
+    this.code = params.code;
+    this.subCode = params.subCode;
+    this.errors = params.errors ?? [{ code: params.code, subCode: params.subCode, message: params.message }];
     Error.captureStackTrace(this, this.constructor);
   }
 
   static badRequest(message: string, subCode: string = CommonErrorCode.VALIDATION_FAILED, errors?: ApiErrorDetail[]): ApiError {
-    return new ApiError(HttpStatusCode.BAD_REQUEST, ApiErrorCode.VALIDATION, subCode, message, errors);
+    return new ApiError({ status: HttpStatusCode.BAD_REQUEST, code: ApiErrorCode.VALIDATION, subCode, message, errors });
   }
 
   static unauthorized(message = 'Authentication required', subCode: string = CommonErrorCode.UNAUTHENTICATED): ApiError {
-    return new ApiError(HttpStatusCode.UNAUTHORIZED, ApiErrorCode.UNAUTHORIZED, subCode, message);
+    return new ApiError({ status: HttpStatusCode.UNAUTHORIZED, code: ApiErrorCode.UNAUTHORIZED, subCode, message });
   }
 
   static forbidden(message = 'You do not have access to this resource', subCode: string = CommonErrorCode.FORBIDDEN): ApiError {
-    return new ApiError(HttpStatusCode.FORBIDDEN, ApiErrorCode.FORBIDDEN, subCode, message);
+    return new ApiError({ status: HttpStatusCode.FORBIDDEN, code: ApiErrorCode.FORBIDDEN, subCode, message });
   }
 
   static notFound(message = 'Resource not found', subCode: string = CommonErrorCode.RESOURCE_NOT_FOUND): ApiError {
-    return new ApiError(HttpStatusCode.NOT_FOUND, ApiErrorCode.NOT_FOUND, subCode, message);
+    return new ApiError({ status: HttpStatusCode.NOT_FOUND, code: ApiErrorCode.NOT_FOUND, subCode, message });
   }
 
   static conflict(message: string, subCode: string = CommonErrorCode.RESOURCE_CONFLICT): ApiError {
-    return new ApiError(HttpStatusCode.CONFLICT, ApiErrorCode.CONFLICT, subCode, message);
+    return new ApiError({ status: HttpStatusCode.CONFLICT, code: ApiErrorCode.CONFLICT, subCode, message });
   }
 
   static tooManyRequests(message = 'Too many requests', subCode: string = CommonErrorCode.RATE_LIMIT_EXCEEDED): ApiError {
-    return new ApiError(HttpStatusCode.TOO_MANY_REQUESTS, ApiErrorCode.RATE_LIMIT_EXCEEDED, subCode, message);
+    return new ApiError({ status: HttpStatusCode.TOO_MANY_REQUESTS, code: ApiErrorCode.RATE_LIMIT_EXCEEDED, subCode, message });
   }
 
   static internal(message = 'Internal server error', subCode: string = CommonErrorCode.INTERNAL_ERROR): ApiError {
-    return new ApiError(HttpStatusCode.INTERNAL_SERVER_ERROR, ApiErrorCode.INTERNAL, subCode, message);
+    return new ApiError({ status: HttpStatusCode.INTERNAL_SERVER_ERROR, code: ApiErrorCode.INTERNAL, subCode, message });
   }
 }
 
