@@ -4,17 +4,8 @@ import { signToken } from '../../common/util/jwt';
 import { UserDTO } from '../../user/dtos/user.dto';
 import { UserErrorCode } from '../../user/enums/user-error-code.enum';
 import { UserService } from '../../user/services/user.service';
-
-export interface SignupInput {
-  email: string;
-  name: string;
-  password: string;
-}
-
-export interface AuthResult {
-  token: string;
-  user: UserDTO;
-}
+import { SignupInput } from '../requests/signup.request';
+import { AuthResult } from '../responses/auth-result';
 
 export class AuthService {
   private readonly userService: UserService;
