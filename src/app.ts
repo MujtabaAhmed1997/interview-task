@@ -16,6 +16,7 @@ import { LeaderboardController } from './leaderboard/controllers/leaderboard.con
 import { ParticipationController } from './participation/controllers/participation.controller';
 import { PrizeController } from './prize/controllers/prize.controller';
 import { QuestionController } from './question/controllers/question.controller';
+import { RateLimitPolicyController } from './rate-limit-policy/controllers/rate-limit-policy.controller';
 import { UserController } from './user/controllers/user.controller';
 
 export const createApp = (): Application => {
@@ -39,6 +40,7 @@ export const createApp = (): Application => {
   app.use(`${secrets.apiPrefix}`, new LeaderboardController().router);
   app.use(`${secrets.apiPrefix}`, new PrizeController().router);
   app.use(`${secrets.apiPrefix}`, new HistoryController().router);
+  app.use(`${secrets.apiPrefix}`, new RateLimitPolicyController().router);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -5,9 +5,11 @@ import { logger } from './common/util/logger';
 import { disconnectRedis } from './common/util/redis';
 import { secrets } from './common/util/secrets';
 import { registerPrizeAwardWorker } from './prize/workers/prize-award.worker';
+import { rateLimitPolicyAdminService } from './rate-limit-policy/services/rate-limit-policy-admin.service';
 
 const start = async (): Promise<void> => {
   await connectDatabase();
+  await rateLimitPolicyAdminService.loadIntoRuntime();
   registerPrizeAwardWorker();
   const app = createApp();
   const server = app.listen(secrets.port, () => {

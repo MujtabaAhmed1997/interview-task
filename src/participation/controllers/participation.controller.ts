@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { RouterClass } from '../../common/base/router.class';
 import { HttpStatusCode } from '../../common/enums/http-status.enum';
+import { RateLimitPolicyName } from '../../common/enums/rate-limit-policy-name.enum';
 import { ApiError, apiOk } from '../../common/errors/api.error';
 import { authRequired } from '../../common/middlewares/auth.middleware';
+import { rateLimit } from '../../common/ratelimit/rate-limit.middleware';
 import { AuthUser } from '../../common/types/auth-user';
 import { QuestionAdminResponse } from '../../question/responses/question-admin.response';
 import { QuestionParticipantResponse } from '../../question/responses/question-participant.response';
@@ -22,10 +24,10 @@ export class ParticipationController extends RouterClass {
   }
 
   protected register(): void {
-    this.router.post('/contests/:id/join', authRequired, ...contestParamValidator, this.handle(this.join.bind(this)));
+    this.router.post('/contests/:id/join', authRequired, rateLimit(RateLimitPolicyName.CONTEST_JOIN), ...contestParamValidator, this.handle(this.join.bind(this)));
     this.router.get('/contests/:id/questions', authRequired, ...contestParamValidator, this.handle(this.questions.bind(this)));
     this.router.post('/contests/:id/answers', authRequired, ...saveAnswersValidator, this.handle(this.saveAnswers.bind(this)));
-    this.router.post('/contests/:id/submit', authRequired, ...contestParamValidator, this.handle(this.submit.bind(this)));
+    this.router.post('/contests/:id/submit', authRequired, rateLimit(RateLimitPolicyName.CONTEST_SUBMIT), ...contestParamValidator, this.handle(this.submit.bind(this)));
     this.router.get('/participations/:id', authRequired, ...participationIdValidator, this.handle(this.getParticipation.bind(this)));
   }
 
