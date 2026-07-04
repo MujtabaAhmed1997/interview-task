@@ -1,4 +1,5 @@
-import { UniqueConstraintError } from 'sequelize';
+import { Transaction, UniqueConstraintError } from 'sequelize';
+import { PaginatedResult, PaginationParams } from '../../common/base/pagination';
 import { ServiceCRUD } from '../../common/base/service.crud';
 import { CacheService, cacheService } from '../../common/cache/cache.service';
 import { sequelize } from '../../common/config/database';
@@ -19,6 +20,7 @@ import { ParticipationDTO } from '../dtos/participation.dto';
 import { ParticipationErrorCode } from '../enums/participation-error-code.enum';
 import { ParticipationStatus } from '../enums/participation-status.enum';
 import { SaveAnswersInput } from '../requests/save-answers.request';
+import { RankedParticipation, TopParticipation } from '../types/ranked-participation';
 import { SelectedAnswer } from '../types/selected-answer';
 import { GradableQuestion, scoreSubmission } from './scoring';
 
@@ -84,6 +86,18 @@ export class ParticipationService extends ServiceCRUD<ParticipationDTO, Particip
     });
     await this.bustLeaderboard(contestId);
     return updated;
+  }
+
+  async getRankedSubmitted(contestId: string, params: PaginationParams): Promise<PaginatedResult<RankedParticipation>> {
+    return this.dao.getRankedSubmitted(contestId, params);
+  }
+
+  async getTopSubmitted(contestId: string, limit: number, transaction?: Transaction): Promise<TopParticipation[]> {
+    return this.dao.getTopSubmitted(contestId, limit, transaction);
+  }
+
+  async listByUser(userId: string, params: PaginationParams, status?: ParticipationStatus): Promise<PaginatedResult<ParticipationDTO>> {
+    return this.dao.findByUser(params, userId, status);
   }
 
   async getParticipation(participationId: string, user: AuthUser): Promise<ParticipationDTO> {
