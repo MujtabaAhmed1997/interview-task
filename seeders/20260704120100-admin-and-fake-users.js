@@ -7,9 +7,12 @@ const DEMO_EMAILS = ['vip@contest.local', 'normal@contest.local'];
 
 module.exports = {
   async up(queryInterface) {
+    if (!process.env.ADMIN_PASSWORD) {
+      throw new Error('ADMIN_PASSWORD must be set (copy .env.example to .env) before running the admin seeder');
+    }
     const now = new Date();
     const rounds = Number(process.env.BCRYPT_SALT_ROUNDS || 10);
-    const adminHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'change_me_admin', rounds);
+    const adminHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD, rounds);
     const demoHash = bcrypt.hashSync('password123', rounds);
 
     await queryInterface.bulkInsert('users', [
