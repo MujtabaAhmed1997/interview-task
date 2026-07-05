@@ -30,7 +30,7 @@ export const secrets = {
   apiPrefix: optional('API_PREFIX', '/api/v1'),
   db: {
     host: required('DB_HOST'),
-    port: asNumber(optional('DB_PORT', '5432'), 'DB_PORT'),
+    port: asNumber(optional('DB_PORT', '3306'), 'DB_PORT'),
     name: required('DB_NAME'),
     user: required('DB_USER'),
     password: required('DB_PASSWORD'),
