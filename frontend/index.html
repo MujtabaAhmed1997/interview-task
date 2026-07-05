@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contest System</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="navbar" id="navbar">
+    <a class="logo" href="/contests" data-link>Contest System</a>
+    <nav id="nav-links">
+      <a href="/contests" data-link data-nav="contests">Contests</a>
+      <a href="/dashboard" data-link data-nav="dashboard" data-auth style="display:none">Dashboard</a>
+      <a href="/admin" data-link data-nav="admin" data-role="ADMIN" style="display:none">Admin</a>
+    </nav>
+    <div class="user-area" id="user-area"></div>
+  </header>
+
+  <div class="toast-container" id="toast-container"></div>
+  <main class="page" id="app"></main>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal-body"></div>
+  </div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

@@ -24,7 +24,7 @@ import { UserController } from './user/controllers/user.controller';
 export const createApp = (): Application => {
   const app = express();
   app.set('trust proxy', 1);
-  app.use(helmet());
+  app.use(helmet({ contentSecurityPolicy: false }));
   app.use(cors());
   app.use(compression());
   app.use(express.json());
