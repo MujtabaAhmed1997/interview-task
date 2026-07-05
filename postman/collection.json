@@ -54,6 +54,21 @@
           }
         },
         {
+          "name": "Login (VIP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["const b = pm.response.json();", "if (b.result && b.result.token) pm.environment.set('vipToken', b.result.token);"], "type": "text/javascript" }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"vip@contest.local\",\n  \"password\": \"password123\"\n}" }
+          }
+        },
+        {
           "name": "Me",
           "request": {
             "method": "GET",

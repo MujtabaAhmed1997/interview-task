@@ -4,6 +4,12 @@ import { navigate } from '../router.js';
 
 let quizState = { contestId: null, questions: [], answers: {}, participation: null };
 
+async function resolveParticipation(contestId) {
+  const history = await api('/me/contests?page=1&perPage=50');
+  const entries = history.data || history;
+  return entries.find((e) => e.contestId === contestId) || null;
+}
+
 export async function renderQuizPage(container, contestId) {
   if (!contestId) {
     showEmpty(container, 'No contest selected');
@@ -14,23 +20,23 @@ export async function renderQuizPage(container, contestId) {
 
   try {
     const contest = await api(`/contests/${contestId}`);
-    let joined = false;
+    let participation = null;
     let questions = [];
 
     if (getToken() && contest.status === 'ACTIVE') {
       try {
-        const p = await api(`/contests/${contestId}/join`, { method: 'POST' });
-        quizState.participation = p;
-        joined = true;
+        participation = await api(`/contests/${contestId}/join`, { method: 'POST' });
       } catch (e) {
         if (e.message.toLowerCase().includes('already')) {
-          joined = true;
+          participation = await resolveParticipation(contestId);
         } else {
           toast(e.message, 'error');
         }
       }
 
-      if (joined) {
+      quizState.participation = participation;
+
+      if (participation && participation.status !== 'SUBMITTED') {
         try {
           questions = await api(`/contests/${contestId}/questions`);
           quizState.questions = questions;
@@ -39,6 +45,9 @@ export async function renderQuizPage(container, contestId) {
         }
       }
     }
+
+    const isSubmitted = participation?.status === 'SUBMITTED';
+    const canPlay = participation && !isSubmitted;
 
     container.innerHTML = `
       <div class="contest-header">
@@ -55,8 +64,15 @@ export async function renderQuizPage(container, contestId) {
       </div>
       ${!getToken() ? '<div class="card text-center"><p>Please <a href="/login" data-link>sign in</a> to participate</p></div>' : ''}
       ${getToken() && contest.status !== 'ACTIVE' ? '<div class="card text-center"><p>This contest is not currently active</p></div>' : ''}
-      ${joined && questions.length ? renderQuestionsHtml(questions) : ''}
-      ${joined && !questions.length ? '<div class="card text-center"><p>No questions in this contest yet</p></div>' : ''}
+      ${isSubmitted ? `
+        <div class="card text-center">
+          <p>You have already submitted this contest.</p>
+          <p style="font-size:1.5rem;font-weight:700;color:var(--primary);margin:.5rem 0">Score: ${participation.score ?? '—'}</p>
+          <a href="/contests/${contestId}/leaderboard" class="btn btn-primary btn-sm" data-link>View Leaderboard</a>
+        </div>
+      ` : ''}
+      ${canPlay && questions.length ? renderQuestionsHtml(questions) : ''}
+      ${canPlay && !questions.length ? '<div class="card text-center"><p>No questions in this contest yet</p></div>' : ''}
     `;
 
     bindQuizEvents();

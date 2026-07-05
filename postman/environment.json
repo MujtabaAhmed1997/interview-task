@@ -7,6 +7,7 @@
     { "key": "adminPassword", "value": "change_me_admin", "enabled": true },
     { "key": "token", "value": "", "enabled": true },
     { "key": "adminToken", "value": "", "enabled": true },
+    { "key": "vipToken", "value": "", "enabled": true },
     { "key": "contestId", "value": "", "enabled": true },
     { "key": "questionId", "value": "", "enabled": true },
     { "key": "optionId", "value": "", "enabled": true }

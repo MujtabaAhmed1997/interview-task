@@ -9,6 +9,8 @@ A REST API where users join contests, answer typed questions, get scored, land o
 - [Getting started](#getting-started)
 - [Environment variables](#environment-variables)
 - [Authentication and roles](#authentication-and-roles)
+- [Frontend](#frontend)
+- [Admin panel](#admin-panel)
 - [API reference](#api-reference)
 - [Rate limiting](#rate-limiting)
 - [Caching and background jobs](#caching-and-background-jobs)
@@ -56,6 +58,25 @@ npm run dev
 
 The API is served at `http://localhost:3000/api/v1`. Interactive docs at `http://localhost:3000/api-docs`. Health check at `/api/v1/health`.
 
+### Frontend (optional UI)
+
+A vanilla JS SPA lives in `frontend/` and proxies API calls to port 3000.
+
+```bash
+# with the API already running on :3000
+npm run dev:frontend
+```
+
+Open `http://localhost:8080/contests`. Admin panel at `/admin` (login as seeded admin).
+
+### Seeded demo accounts
+
+| Email | Password | Role |
+| --- | --- | --- |
+| `admin@contest.local` | `change_me_admin` (or your `ADMIN_PASSWORD`) | Admin |
+| `vip@contest.local` | `password123` | VIP |
+| `normal@contest.local` | `password123` | Normal |
+
 ## Environment variables
 
 | Variable | Default | Purpose |
@@ -86,6 +107,76 @@ Sign up returns a NORMAL user and a JWT. An admin (seeded) can grant VIP. Guests
 | See own history and prizes | no | yes | yes | yes |
 | Manage contests, questions, prizes, policies | no | no | no | yes |
 
+## Frontend
+
+The frontend is a vanilla JS single-page app served by a lightweight Node.js static server that runs on port **8080** and proxies all `/api/` requests to the backend automatically — no CORS configuration needed.
+
+### Running the frontend
+
+```bash
+# from the project root (API must already be running on :3000)
+npm run dev:frontend
+
+# or from inside the frontend/ folder
+cd frontend && npm run dev
+```
+
+Open **`http://localhost:8080`**.
+
+### Pages
+
+| URL | Page | Who can access |
+| --- | --- | --- |
+| `/contests` | Browse all contests | Everyone |
+| `/login` | Sign in | Everyone |
+| `/signup` | Create account | Everyone |
+| `/contests/:id` | Contest detail & leaderboard | Everyone |
+| `/contests/:id/quiz` | Answer questions | Logged-in users |
+| `/dashboard` | My contests & prizes | Logged-in users |
+| `/admin` | Admin panel | Admin only |
+| `/admin/contests/:id` | Manage a specific contest | Admin only |
+
+The navbar shows the **Admin** link only when logged in as admin. The **Dashboard** link appears for any authenticated user.
+
+## Admin panel
+
+### Logging in as admin
+
+1. Open `http://localhost:8080/login`
+2. Enter `admin@contest.local` as the email
+3. Enter `change_me_admin` as the password (or whatever `ADMIN_PASSWORD` is set to in `.env`)
+4. Click **Sign In**
+
+After a successful login the **Admin** link appears in the navbar. Click it to go to `http://localhost:8080/admin`.
+
+### Admin panel overview
+
+The page has two main sections:
+
+**Manage Contests** — a table listing every contest with its status, access level, and start/end dates. Each row has a **Manage** button that opens the individual contest page. A **+ Create Contest** button at the top opens a modal form with these fields:
+
+| Field | Description |
+| --- | --- |
+| Name | Contest title (required) |
+| Description | Optional description |
+| Access Level | `Normal` (all logged-in users) or `VIP` (VIP + admin only) |
+| Start Time | When the contest opens |
+| End Time | When the contest closes |
+
+**User Management** — a table of all registered users showing name, email, current role, and join date. The **Action** column has a role dropdown per user. Changing the dropdown value saves the new role immediately. Available roles: `Normal`, `VIP`, `Admin`.
+
+### Manage Contest page (`/admin/contests/:id`)
+
+Reached by clicking **Manage** on any contest row. From here:
+
+**Questions**
+- Click **+ Add Question** → fill in question text, type (`Single Select`, `Multi Select`, `True / False`), points, and at least two answer options with the **Correct** checkbox on the right answer(s) → click **Add Question**
+- Edit or delete existing questions inline
+
+**Prizes**
+- Click **+ Create Prize** → fill in title, rank (1 = first place), optional description → click **Create**
+- Delete an existing prize with its delete button
+
 ## API reference
 
 Base path `/api/v1`.
@@ -101,8 +192,8 @@ Contests, questions, options (admin manages, public reads)
 - `GET /contests` list (paginated, filter by status and access level)
 - `GET /contests/:id` details
 - `POST /contests`, `PUT /contests/:id`, `DELETE /contests/:id` (admin)
-- `POST /contests/:id/questions`, `PATCH /questions/:id`, `DELETE /questions/:id` (admin)
-- `POST /questions/:id/options`, `PATCH /options/:id`, `DELETE /options/:id` (admin)
+- `POST /contests/:id/questions`, `PUT /questions/:id`, `DELETE /questions/:id` (admin)
+- `POST /questions/:id/options`, `PUT /options/:id`, `DELETE /options/:id` (admin)
 
 Participation
 - `POST /contests/:id/join` join (role + window gated, rate limited)
@@ -133,6 +224,8 @@ Per-IP and per-user limits backed by Redis (`rate-limiter-flexible`) behind a `R
 
 ## Testing
 
+Ensure Docker services are running first (`docker compose up -d`).
+
 ```bash
 npm test          # unit + integration (Jest + supertest, against Docker MySQL)
 npm run test:cov  # with coverage
@@ -147,7 +240,8 @@ Integration tests run against a disposable `<db>_test` MySQL database.
 - Source with conventional commits, migrations and fake-data seeders
 - `db/schema.sql` MySQL schema dump
 - `postman/collection.json` and `postman/environment.json`
-- Swagger UI at `/api-docs`
+- Swagger UI at `/api-docs` (full OpenAPI 3 schemas with request/response bodies)
+- Vanilla JS frontend in `frontend/` (contests, quiz, admin management)
 - Unit and integration tests with coverage
 
 ## Why plain Node over Strapi
